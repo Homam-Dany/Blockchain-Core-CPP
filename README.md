@@ -89,7 +89,7 @@ Upon launching, the interactive menu allows performing real-time operations :
         BIENVENUE DANS VOTRE LOGICIEL BLOCKCHAIN (C++)          
 ================================================================
 ------------------------- MENU PRINCIPAL -------------------------
-  1. [Transaction]   Envoyer des tokens (ex: Alice -> Bob)
+  1. [Transaction]   Envoyer des tokens (ex: Homam -> Houssam)
   2. [Certification] Horodater et certifier un document / texte
   3. [Minage]        Valider les transactions en attente (PoW ou PoS)
   4. [Comptes]       Voir les soldes et validateurs
@@ -114,7 +114,3 @@ Upon launching, the interactive menu allows performing real-time operations :
 | **Real-World Examples** | Bitcoin, Litecoin, Kaspa | Ethereum, Cardano, Solana |
 
 ---
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
