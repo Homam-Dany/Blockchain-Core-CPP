@@ -1,7 +1,7 @@
 # ⛓️ Blockchain-Core-CPP
 
 <p align="center">
-  <a href="https://homam-dany.github.io/Blockchain-Core-CPP/">
+  <a href="https://homam-dany.github.io/Blockchain-Core-CPP/index.html">
     <img src="https://img.shields.io/badge/🌐%20Site%20Web%20Live-Ouvrir%20le%20Dashboard%20Interactif-00f2fe?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Live Website">
   </a>
   <a href="https://github.com/Homam-Dany/Blockchain-Core-CPP">
@@ -27,10 +27,10 @@ Ce projet intègre les fondamentaux cryptographiques et d'architecture distribu�
 
 ## 🎨 Résumé Visuel & Infographie Complète
 
-> 💡 **Dashboard Interactif en Ligne :** Vous pouvez tester en direct la simulation des cyberattaques et comparer le PoW et PoS sur **[homam-dany.github.io/Blockchain-Core-CPP](https://homam-dany.github.io/Blockchain-Core-CPP/)**.
+> 💡 **Dashboard Interactif en Ligne :** Vous pouvez tester en direct la simulation des cyberattaques et comparer le PoW et PoS sur **[homam-dany.github.io/Blockchain-Core-CPP/index.html](https://homam-dany.github.io/Blockchain-Core-CPP/index.html)**.
 
 <p align="center">
-  <a href="https://homam-dany.github.io/Blockchain-Core-CPP/">
+  <a href="https://homam-dany.github.io/Blockchain-Core-CPP/index.html">
     <img src="docs/infographie_blockchain_blanc.png" alt="Infographie Résumé Blockchain C++" width="100%">
   </a>
 </p>
