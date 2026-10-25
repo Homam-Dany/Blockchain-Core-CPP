@@ -221,4 +221,3 @@ Blockchain-Core-CPP/
 
 - **Auteur principal** : **Homam Dany** ([@Homam-Dany](https://github.com/Homam-Dany))
 - **Projet** : Atelier Sécurité & Éthique des Données — Implémentation complète d'un cœur Blockchain.
-- **Licence** : [MIT License](https://opensource.org/licenses/MIT).
