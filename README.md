@@ -31,7 +31,7 @@ Ce projet intègre les fondamentaux cryptographiques et d'architecture distribu�
 
 <p align="center">
   <a href="https://homam-dany.github.io/Blockchain-Core-CPP/">
-    <img src="infographie_blockchain_blanc.png" alt="Infographie Résumé Blockchain C++" width="100%">
+    <img src="docs/infographie_blockchain_blanc.png" alt="Infographie Résumé Blockchain C++" width="100%">
   </a>
 </p>
 
@@ -208,10 +208,10 @@ g++ -std=c++17 -O2 main.cpp -o blockchain_core.exe
 
 ```text
 Blockchain-Core-CPP/
+├── docs/                                       # Dossier dédié aux ressources web & visuelles
+│   ├── index.html                              # Dashboard web interactif en direct (GitHub Pages)
+│   └── infographie_blockchain_blanc.png        # Infographie de synthèse haute définition
 ├── main.cpp                                    # Cœur C++ complet (SHA-256, Merkle, PoW, PoS, CLI)
-├── index.html                                  # Dashboard web interactif (GitHub Pages)
-├── infographie_blockchain_blanc.png            # Infographie de synthèse haute définition
-├── blockchain_data.txt                         # Fichier de persistance disque
 └── README.md                                   # Documentation officielle du projet
 ```
 

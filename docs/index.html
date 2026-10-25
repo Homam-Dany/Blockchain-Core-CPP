@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Blockchain C++ — Dashboard Interactif & Architecture</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-page: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-card-alt: #f1f5f9;
+      --border-card: #e2e8f0;
+      --border-focus: #3b82f6;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --text-light: #94a3b8;
+      
+      --pri: #2563eb;
+      --pri-light: #eff6ff;
+      --pri-border: #bfdbfe;
+      
+      --purple: #7c3aed;
+      --purple-light: #f5f3ff;
+      --purple-border: #ddd6fe;
+      
+      --emerald: #059669;
+      --emerald-light: #ecfdf5;
+      --emerald-border: #a7f3d0;
+      
+      --rose: #e11d48;
+      --rose-light: #fff1f2;
+      --rose-border: #fecdd3;
+      
+      --amber: #d97706;
+      --amber-light: #fffbeb;
+      --amber-border: #fde68a;
+      
+      --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.05);
+      --shadow-md: 0 10px 25px -5px rgba(15, 23, 42, 0.06), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+      --shadow-lg: 0 20px 30px -10px rgba(37, 99, 235, 0.12);
+      
+      --radius: 16px;
+      --radius-sm: 10px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      background-color: var(--bg-page);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.07) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(124, 58, 237, 0.06) 0px, transparent 50%),
+        radial-gradient(at 50% 100%, rgba(5, 150, 105, 0.05) 0px, transparent 50%);
+      background-attachment: fixed;
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      padding-bottom: 80px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 20px 60px;
+    }
+
+    /* HEADER */
+    header {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius);
+      padding: 36px 32px;
+      box-shadow: var(--shadow-md);
+      margin-bottom: 32px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    header::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--pri), var(--purple), var(--emerald));
+    }
+
+    .badge-top {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--pri-light);
+      color: var(--pri);
+      border: 1px solid var(--pri-border);
+      padding: 6px 14px;
+      border-radius: 99px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .badge-top span.dot {
+      width: 8px;
+      height: 8px;
+      background: var(--pri);
+      border-radius: 50%;
+      display: inline-block;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    h1 {
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, #0f172a 0%, #1e40af 50%, #6b21a8 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .subtitle {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      max-width: 820px;
+      margin-bottom: 24px;
+    }
+
+    .header-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .pill {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 8px;
+      background: #ffffff;
+      border: 1px solid var(--border-card);
+      box-shadow: var(--shadow-sm);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pill.author {
+      background: linear-gradient(135deg, #eff6ff, #f5f3ff);
+      color: var(--pri);
+      border-color: var(--pri-border);
+    }
+
+    /* SECTION TITLES */
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 40px 0 18px;
+    }
+
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--text-main);
+    }
+
+    .section-title span.tag {
+      background: var(--text-main);
+      color: #ffffff;
+      font-size: 0.8rem;
+      font-weight: 800;
+      padding: 3px 9px;
+      border-radius: 8px;
+    }
+
+    /* CARDS */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.25s ease;
+      position: relative;
+    }
+
+    .card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+      border-color: #cbd5e1;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 860px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    }
+
+    .card-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      font-weight: 800;
+      font-size: 1.2rem;
+    }
+
+    .card-icon.blue { background: var(--pri-light); color: var(--pri); border: 1px solid var(--pri-border); }
+    .card-icon.purple { background: var(--purple-light); color: var(--purple); border: 1px solid var(--purple-border); }
+    .card-icon.emerald { background: var(--emerald-light); color: var(--emerald); border: 1px solid var(--emerald-border); }
+    .card-icon.rose { background: var(--rose-light); color: var(--rose); border: 1px solid var(--rose-border); }
+    .card-icon.amber { background: var(--amber-light); color: var(--amber); border: 1px solid var(--amber-border); }
+
+    .card h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--text-main);
+    }
+
+    .card p {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+      margin-bottom: 14px;
+    }
+
+    /* BLOCKCHAIN INTERACTIVE CHAIN */
+    .chain-wrapper {
+      overflow-x: auto;
+      padding: 10px 4px 20px;
+      margin: 16px 0;
+    }
+
+    .chain-container {
+      display: flex;
+      align-items: stretch;
+      gap: 0;
+      min-width: 920px;
+    }
+
+    .block-node {
+      flex: 1;
+      min-width: 200px;
+      background: #ffffff;
+      border: 2px solid var(--border-card);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: var(--shadow-sm);
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+    }
+
+    .block-node:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+      border-color: var(--pri);
+    }
+
+    .block-node.valid {
+      border-color: #86efac;
+      background: linear-gradient(180deg, #ffffff 60%, #f0fdf4 100%);
+    }
+
+    .block-node.corrupted {
+      border-color: var(--rose);
+      background: linear-gradient(180deg, #ffffff 60%, #fff1f2 100%);
+      box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.15), var(--shadow-md);
+      animation: shake 0.4s ease-in-out;
+    }
+
+    .block-node.cascade-broken {
+      border-color: var(--amber);
+      background: linear-gradient(180deg, #ffffff 60%, #fffbeb 100%);
+      opacity: 0.9;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-6px); }
+      40%, 80% { transform: translateX(6px); }
+    }
+
+    .block-header-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border-card);
+    }
+
+    .block-num {
+      font-weight: 800;
+      font-size: 0.95rem;
+      color: var(--text-main);
+    }
+
+    .block-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 99px;
+    }
+
+    .badge-valid { background: var(--emerald-light); color: var(--emerald); border: 1px solid var(--emerald-border); }
+    .badge-corrupt { background: var(--rose-light); color: var(--rose); border: 1px solid var(--rose-border); }
+    .badge-broken { background: var(--amber-light); color: var(--amber); border: 1px solid var(--amber-border); }
+
+    .block-data-row {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .block-data-row span.label {
+      font-weight: 700;
+      color: var(--text-light);
+      text-transform: uppercase;
+      font-size: 0.65rem;
+    }
+
+    .block-data-row span.val {
+      color: var(--text-main);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      background: var(--bg-card-alt);
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-top: 2px;
+    }
+
+    /* CONNECTOR ARROW */
+    .chain-arrow {
+      width: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: none;
+      position: relative;
+    }
+
+    .chain-arrow svg {
+      width: 100%;
+      height: 24px;
+    }
+
+    .chain-arrow line {
+      stroke: var(--pri);
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-dasharray: 6 4;
+      animation: dashflow 1.2s linear infinite;
+    }
+
+    .chain-arrow.broken line {
+      stroke: var(--rose);
+      animation: none;
+    }
+
+    @keyframes dashflow {
+      to { stroke-dashoffset: -20; }
+    }
+
+    /* ATTACK CONTROLS */
+    .controls-panel {
+      background: var(--bg-card-alt);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      margin: 16px 0;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .attack-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .btn {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 600;
+      font-size: 0.85rem;
+      padding: 8px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border-card);
+      background: #ffffff;
+      color: var(--text-main);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn:hover {
+      border-color: var(--pri);
+      color: var(--pri);
+      transform: translateY(-1px);
+    }
+
+    .btn.active {
+      background: var(--pri);
+      color: #ffffff;
+      border-color: var(--pri);
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+    }
+
+    .btn-reset {
+      background: var(--emerald);
+      color: #ffffff;
+      border-color: var(--emerald);
+    }
+
+    .btn-reset:hover {
+      background: #047857;
+      color: #ffffff;
+    }
+
+    /* AUDIT STATUS BOX */
+    .audit-box {
+      border-radius: var(--radius-sm);
+      padding: 16px 20px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.88rem;
+      border: 1px solid;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.3s;
+    }
+
+    .audit-box.ok {
+      background: var(--emerald-light);
+      border-color: var(--emerald-border);
+      color: var(--emerald);
+    }
+
+    .audit-box.danger {
+      background: var(--rose-light);
+      border-color: var(--rose-border);
+      color: var(--rose);
+      animation: pulse 1.5s infinite;
+    }
+
+    /* CONSENSUS COMPARATOR */
+    .tabs-header {
+      display: flex;
+      border-bottom: 2px solid var(--border-card);
+      margin-bottom: 20px;
+    }
+
+    .tab-btn {
+      padding: 12px 24px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      border: none;
+      background: none;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s;
+    }
+
+    .tab-btn:hover { color: var(--pri); }
+
+    .tab-btn.active {
+      color: var(--pri);
+    }
+
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0; right: 0;
+      height: 3px;
+      background: var(--pri);
+      border-radius: 3px 3px 0 0;
+    }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* SIMULATOR INTERACTIVE BOX */
+    .sim-box {
+      background: #ffffff;
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .sim-run-btn {
+      font-size: 0.95rem;
+      font-weight: 700;
+      padding: 12px 24px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--pri), #1d4ed8);
+      color: #ffffff;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .sim-run-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+    }
+
+    .sim-run-btn.pos {
+      background: linear-gradient(135deg, var(--purple), #6d28d9);
+      box-shadow: 0 4px 14px rgba(124, 58, 237, 0.3);
+    }
+
+    .metric-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .progress-bar {
+      height: 10px;
+      border-radius: 10px;
+      background: var(--bg-card-alt);
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 10px;
+      transition: width 0.6s ease;
+    }
+
+    /* LIVE CRYPTO TOOL */
+    .crypto-input {
+      width: 100%;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
+      padding: 12px 16px;
+      border: 2px solid var(--border-card);
+      border-radius: var(--radius-sm);
+      outline: none;
+      transition: border 0.2s;
+      margin-bottom: 12px;
+    }
+
+    .crypto-input:focus {
+      border-color: var(--pri);
+    }
+
+    .hash-result {
+      background: #0f172a;
+      color: #38bdf8;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      padding: 14px 16px;
+      border-radius: var(--radius-sm);
+      word-break: break-all;
+      border: 1px solid #1e293b;
+    }
+
+    /* FOOTER */
+    footer {
+      margin-top: 50px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      padding-top: 24px;
+      border-top: 1px solid var(--border-card);
+    }
+
+    footer b { color: var(--text-main); }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <header>
+    <div class="badge-top">
+      <span class="dot"></span>
+      Atelier Sécurité et Éthique des Données
+    </div>
+    <h1>Blockchain C++ from scratch</h1>
+    <p class="subtitle">
+      Architecture distribuée haute performance développée sans aucune bibliothèque externe.
+      Cryptographie SHA-256 native, arbre de Merkle, double consensus hybride (PoW / PoS), et audit anti-cyberattaques.
+    </p>
+
+    <div class="header-pills">
+      <div class="pill author">👤 Auteur : <b>Homam Dany</b></div>
+      <div class="pill">⚡ C++17</div>
+      <div class="pill">🔐 SHA-256 natif</div>
+      <div class="pill">🌳 Arbre de Merkle</div>
+      <div class="pill">⛏️ PoW & PoS</div>
+      <div class="pill">🛡️ checkIntegrity()</div>
+      <div class="pill">💾 blockchain_data.txt</div>
+    </div>
+  </header>
+
+  <!-- SECTION 1: SIMULATEUR D'ATTAQUE SUR LE CHAÎNAGE -->
+  <div class="section-head">
+    <div class="section-title">
+      <span class="tag">01</span>
+      Chaînage Cryptographique & Simulateur d'Attaques en Temps Réel
+    </div>
+  </div>
+
+  <div class="card">
+    <p>
+      La blockchain garantit son inviolabilité par le chaînage des hashs et l'arbre de Merkle.
+      <b>Sélectionnez un type d'attaque</b> puis <b>cliquez sur n'importe quel bloc</b> pour tester la résistance du système et observer la réaction immédiate de l'algorithme d'audit <code>checkIntegrity()</code> :
+    </p>
+
+    <div class="controls-panel">
+      <div class="attack-buttons" id="attackButtons">
+        <button class="btn active" data-atk="merkle">💥 1. Altération Transaction (Merkle)</button>
+        <button class="btn" data-atk="chain">🔗 2. Rupture de Chaîne (PrevHash)</button>
+        <button class="btn" data-atk="header">📑 3. En-tête Corrompu</button>
+        <button class="btn" data-atk="pow">⛏️ 4. Fausse Difficulté PoW</button>
+      </div>
+      <button class="btn btn-reset" id="resetBtn">🔄 Restaurer la Chaîne Intègre</button>
+    </div>
+
+    <!-- VISUAL CHAIN -->
+    <div class="chain-wrapper">
+      <div class="chain-container" id="chainView"></div>
+    </div>
+
+    <!-- AUDIT OUTPUT -->
+    <div class="audit-box ok" id="auditStatus">
+      <div>
+        <span style="font-weight: 800;">✓ checkIntegrity() :</span> 
+        <span id="auditMsg">Tous les 4 blocs sont 100% intacts et inviolables. Chaînage parfait.</span>
+      </div>
+      <span class="pill" id="auditBadge" style="background:#ffffff; color:var(--emerald);">STATUT : VALIDE</span>
+    </div>
+  </div>
+
+  <!-- SECTION 2: COMPARATIF POW VS POS -->
+  <div class="section-head">
+    <div class="section-title">
+      <span class="tag">02</span>
+      Moteur de Consensus Hybride : Proof of Work vs Proof of Stake
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="tabs-header">
+      <button class="tab-btn active" data-tab="tab-pow">⛏️ Proof of Work (Minage par Force Brute)</button>
+      <button class="tab-btn" data-tab="tab-pos">◈ Proof of Stake (Validation par la Mise)</button>
+    </div>
+
+    <!-- TAB POW -->
+    <div class="tab-content active" id="tab-pow">
+      <div class="grid-2">
+        <div>
+          <h3>Principe du Proof of Work</h3>
+          <p>
+            Les nœuds résolvent une énigme cryptographique en faisant varier le <b>Nonce</b> jusqu'à ce que l'empreinte SHA-256 du bloc commence par un nombre défini de zéros (la difficulté cible).
+          </p>
+          <ul style="padding-left: 20px; font-size: 0.9rem; color: var(--text-muted); margin-bottom: 20px;">
+            <li><b>Cible réglable :</b> Difficulté 3 = hash commençant par <code>000...</code></li>
+            <li><b>Sécurité :</b> Coût énergétique et calculatoire colossal pour réécrire l'histoire</li>
+            <li><b>Mesure :</b> Temps mesuré en millisecondes pour chaque bloc</li>
+          </ul>
+
+          <div class="metric-row"><span>Coût en calcul CPU</span><span style="color:var(--rose)">Très Élevé (92%)</span></div>
+          <div class="progress-bar"><div class="progress-fill" style="width: 92%; background: var(--rose);"></div></div>
+
+          <div class="metric-row"><span>Vitesse de validation</span><span style="color:var(--amber)">Lente (~450 ms)</span></div>
+          <div class="progress-bar"><div class="progress-fill" style="width: 28%; background: var(--amber);"></div></div>
+        </div>
+
+        <div class="sim-box">
+          <h4 style="margin-bottom: 12px; font-weight: 700;">Simulateur de Minage PoW (Difficulté 3)</h4>
+          <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:16px;">
+            Lancez un minage réel dans votre navigateur pour trouver un Nonce valide :
+          </p>
+          <button class="sim-run-btn" id="mineBtn">⚡ Lancer le Minage PoW</button>
+
+          <div id="powResult" style="margin-top: 16px; display: none;">
+            <div style="font-family:'JetBrains Mono',monospace; font-size:0.82rem; background:var(--bg-card-alt); padding:12px; border-radius:8px; border:1px solid var(--border-card);">
+              <div>🔨 <b>Statut :</b> <span id="powStatus" style="color:var(--emerald)">Bloc miné avec succès !</span></div>
+              <div>🔢 <b>Nonce trouvé :</b> <span id="powNonce">4291</span> itérations</div>
+              <div>⏱️ <b>Temps écoulé :</b> <span id="powTime">38.4 ms</span></div>
+              <div style="margin-top:4px; word-break:break-all;">🔑 <b>Hash valide :</b> <code id="powHash" style="color:var(--pri)">000a98f12d...</code></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB POS -->
+    <div class="tab-content" id="tab-pos">
+      <div class="grid-2">
+        <div>
+          <h3>Principe du Proof of Stake</h3>
+          <p>
+            Aucun calcul inutile : le forgeur du bloc suivant est sélectionné de manière <b>pseudo-aléatoire pondérée par sa mise (Stake)</b>. Le bloc est scellé instantanément avec sa clé secrète.
+          </p>
+          <div style="background:var(--bg-card-alt); padding:12px 16px; border-radius:8px; margin-bottom:16px;">
+            <div style="font-weight:700; font-size:0.85rem; margin-bottom:6px;">Validateurs enregistrés dans le système :</div>
+            <div style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:4px;">
+              <span>👤 <b>Homam</b> (Mise financière : <b>50 tokens</b>)</span>
+              <span class="pill" style="color:var(--purple)">Probabilité : 50%</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:4px;">
+              <span>👤 <b>Houssam</b> (Mise financière : <b>30 tokens</b>)</span>
+              <span class="pill" style="color:var(--pri)">Probabilité : 30%</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:0.85rem;">
+              <span>👤 <b>Yassine</b> (Mise financière : <b>20 tokens</b>)</span>
+              <span class="pill" style="color:var(--emerald)">Probabilité : 20%</span>
+            </div>
+          </div>
+
+          <div class="metric-row"><span>Coût énergétique</span><span style="color:var(--emerald)">Quasi nul (< 1%)</span></div>
+          <div class="progress-bar"><div class="progress-fill" style="width: 2%; background: var(--emerald);"></div></div>
+
+          <div class="metric-row"><span>Vitesse d'exécution</span><span style="color:var(--emerald)">Instantanée (~0.05 ms)</span></div>
+          <div class="progress-bar"><div class="progress-fill" style="width: 98%; background: var(--emerald);"></div></div>
+        </div>
+
+        <div class="sim-box">
+          <h4 style="margin-bottom: 12px; font-weight: 700;">Simulateur de Forgeage PoS</h4>
+          <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:16px;">
+            Tirez au sort le validateur selon ses parts et attribuez la récompense de validation (+1 token) :
+          </p>
+          <button class="sim-run-btn pos" id="forgeBtn">◈ Forger le Prochain Bloc PoS</button>
+
+          <div id="posResult" style="margin-top: 16px; display: none;">
+            <div style="font-family:'JetBrains Mono',monospace; font-size:0.82rem; background:var(--bg-card-alt); padding:12px; border-radius:8px; border:1px solid var(--border-card);">
+              <div>🏆 <b>Validateur Élu :</b> <span id="posWinner" style="color:var(--purple); font-weight:800;">Homam</span></div>
+              <div>🎁 <b>Récompense :</b> <span style="color:var(--emerald)">+1.00 token</span> ajouté à sa mise</div>
+              <div>🔏 <b>Signature secrète :</b> <code id="posSig" style="color:var(--pri)">SHA256(secret_key + blockHash)</code></div>
+              <div>⚡ <b>Temps de forgeage :</b> <span id="posTime">0.03 ms</span> (instantané)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 3: PLAYGROUND CRYPTOGRAPHIQUE SHA-256 -->
+  <div class="section-head">
+    <div class="section-title">
+      <span class="tag">03</span>
+      Atelier Cryptographique : SHA-256 en Temps Réel & Arbre de Merkle
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <!-- CALCULATEUR SHA-256 -->
+    <div class="card">
+      <div class="card-icon blue">#</div>
+      <h3>Testeur SHA-256 Natif</h3>
+      <p>
+        Tapez n'importe quelle chaîne pour observer l'effet d'avalanche : modifier un seul caractère change complètement l'empreinte de 256 bits.
+      </p>
+      <input type="text" id="shaInput" class="crypto-input" value="Transaction officielle initiée par Homam vers Houssam : 25.50 tokens">
+      <div style="font-size:0.75rem; font-weight:700; color:var(--text-light); margin-bottom:4px; text-transform:uppercase;">Empreinte SHA-256 (64 caractères hexadécimaux) :</div>
+      <div class="hash-result" id="shaOutput">Calcul en cours...</div>
+    </div>
+
+    <!-- ARBRE DE MERKLE -->
+    <div class="card">
+      <div class="card-icon purple">🌳</div>
+      <h3>Arbre de Merkle & Merkle Root</h3>
+      <p>
+        Toutes les transactions du bloc sont condensées récursivement par paires jusqu'à former la <b>Merkle Root</b> unique du bloc.
+      </p>
+      
+      <div style="background:var(--bg-card-alt); border:1px solid var(--border-card); border-radius:8px; padding:12px; font-family:'JetBrains Mono',monospace; font-size:0.75rem;">
+        <div style="text-align:center; color:var(--purple); font-weight:800; margin-bottom:6px;">[ Merkle Root ] : 4f8a2c1...</div>
+        <div style="text-align:center; color:var(--text-light); margin-bottom:6px;">▲ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ▲</div>
+        <div style="display:flex; justify-content:space-around; color:var(--pri); margin-bottom:6px;">
+          <span>H(Tx1 + Tx2)</span>
+          <span>H(Doc1 + Doc2)</span>
+        </div>
+        <div style="text-align:center; color:var(--text-light); margin-bottom:6px;">▲ &nbsp;&nbsp;&nbsp;&nbsp; ▲ &nbsp;&nbsp;&nbsp;&nbsp; ▲ &nbsp;&nbsp;&nbsp;&nbsp; ▲</div>
+        <div style="display:flex; justify-content:space-between; color:var(--text-muted); font-size:0.7rem;">
+          <span>Tx1 (Homam➔Houssam)</span>
+          <span>Tx2 (Transfert)</span>
+          <span>Doc1 (Certif Homam)</span>
+          <span>Doc2 (Diplôme)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 4: FONCTIONNALITÉS MÉTIER -->
+  <div class="section-head">
+    <div class="section-title">
+      <span class="tag">04</span>
+      Fonctionnalités Métier & Cas d'Usage Réels
+    </div>
+  </div>
+
+  <div class="grid-3">
+    <div class="card">
+      <div class="card-icon emerald">💳</div>
+      <h3>Transfert de Tokens & Anti Double Dépense</h3>
+      <p>
+        Chaque transaction est validée en comparant le solde disponible moins les dépenses déjà présentes dans le pool en attente (<b>Mempool</b>).
+      </p>
+      <div class="pill" style="color:var(--emerald)">Homam ➔ Houssam : 25.50 tokens</div>
+    </div>
+
+    <div class="card">
+      <div class="card-icon purple">📜</div>
+      <h3>Certification & Horodatage de Documents</h3>
+      <p>
+        Preuve d'antériorité et d'intégrité : l'empreinte SHA-256 d'un texte, contrat ou diplôme est ancrée définitivement dans un bloc avec son propriétaire.
+      </p>
+      <div class="pill" style="color:var(--purple)">Contrat_Officiel.pdf [SHA256]</div>
+    </div>
+
+    <div class="card">
+      <div class="card-icon blue">💾</div>
+      <h3>Persistance Disque Automatique</h3>
+      <p>
+        L'ensemble de la chaîne, des soldes utilisateurs et des validateurs est sauvegardé et restauré de manière transparente sur le fichier indexé <code>blockchain_data.txt</code>.
+      </p>
+      <div class="pill" style="color:var(--pri)">blockchain_data.txt</div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>
+      Projet conçu et développé par <b>Homam Dany</b> — Atelier Sécurité et Éthique des Données.
+    </p>
+    <p style="margin-top: 6px; font-size: 0.8rem; color: var(--text-light);">
+      Architecture C++ autonome • Zéro dépendance tierce • Dépôt GitHub : <a href="https://github.com/Homam-Dany/Blockchain-Core-CPP" target="_blank" style="color:var(--pri); font-weight:600; text-decoration:none;">Homam-Dany/Blockchain-Core-CPP</a>
+    </p>
+  </footer>
+
+</div>
+
+<script>
+// ============================================================================
+// LOGIQUE INTERACTIVE JAVASCRIPT
+// ============================================================================
+
+// 1. BLOCS DE LA BLOCKCHAIN
+const blocks = [
+  { index: 0, label: "Genesis #0", prev: "0000000000000000", merkle: "e3b0c44298fc1c14", hash: "d99df8a104e4a1f0", val: "GENESIS", txCount: 0 },
+  { index: 1, label: "Bloc #1",     prev: "d99df8a104e4a1f0", merkle: "603f98a2110c45ad", hash: "0003a89f71c47c2e", val: "Homam (PoW)", txCount: 2 },
+  { index: 2, label: "Bloc #2",     prev: "0003a89f71c47c2e", merkle: "7cc091f24e9383ff", hash: "000b21a8843919ad", val: "Homam (PoS)", txCount: 1 },
+  { index: 3, label: "Bloc #3",     prev: "000b21a8843919ad", merkle: "a175f4d89e21079e", hash: "0007e9921c3ee4b5", val: "Houssam (PoS)", txCount: 3 }
+];
+
+const attackExplanations = {
+  merkle: {
+    name: "Altération de Transaction",
+    reason: "La racine de Merkle recalculée ne correspond plus à la racine stockée dans l'en-tête (une transaction passée a été falsifiée !)."
+  },
+  chain: {
+    name: "Rupture de Chaîne",
+    reason: "Le prevHash stocké dans ce bloc est différent du hash réel du bloc précédent. Chaînage brisé !"
+  },
+  header: {
+    name: "En-tête Corrompu",
+    reason: "Le hash stocké dans le bloc ne correspond plus au calcul SHA-256 de ses données d'en-tête."
+  },
+  pow: {
+    name: "Difficulté PoW Falsifiée",
+    reason: "Le hash de ce bloc ne commence pas par les zéros requis (difficulté non atteinte)."
+  }
+};
+
+let currentAttack = "merkle";
+let corruptedIndex = null;
+
+const chainView = document.getElementById("chainView");
+const auditStatus = document.getElementById("auditStatus");
+const auditMsg = document.getElementById("auditMsg");
+const auditBadge = document.getElementById("auditBadge");
+
+function renderChain() {
+  chainView.innerHTML = "";
+  
+  blocks.forEach((b, idx) => {
+    let stateClass = "valid";
+    let badgeText = "✓ VALIDE";
+    let badgeClass = "badge-valid";
+
+    if (corruptedIndex !== null) {
+      if (idx === corruptedIndex) {
+        stateClass = "corrupted";
+        badgeText = "✗ CORROMPU";
+        badgeClass = "badge-corrupt";
+      } else if (idx > corruptedIndex) {
+        stateClass = "cascade-broken";
+        badgeText = "⚠ LIEN ROMPU";
+        badgeClass = "badge-broken";
+      }
+    }
+
+    const node = document.createElement("div");
+    node.className = `block-node ${stateClass}`;
+    node.innerHTML = `
+      <div class="block-header-info">
+        <span class="block-num">${b.label}</span>
+        <span class="block-badge ${badgeClass}">${badgeText}</span>
+      </div>
+      <div class="block-data-row">
+        <span class="label">PrevHash :</span>
+        <span class="val">${b.prev.substring(0, 16)}...</span>
+      </div>
+      <div class="block-data-row">
+        <span class="label">MerkleRoot :</span>
+        <span class="val">${b.merkle.substring(0, 16)}...</span>
+      </div>
+      <div class="block-data-row">
+        <span class="label">Bloc Hash :</span>
+        <span class="val">${b.hash.substring(0, 16)}...</span>
+      </div>
+      <div class="block-data-row">
+        <span class="label">Validateur :</span>
+        <span class="val" style="color:var(--pri)">${b.val}</span>
+      </div>
+    `;
+
+    node.onclick = () => {
+      if (idx === 0) {
+        alert("Le Bloc Genesis (#0) est l'ancre de confiance immuable.");
+        return;
+      }
+      corruptedIndex = idx;
+      renderChain();
+      updateAudit();
+    };
+
+    chainView.appendChild(node);
+
+    // Flèche connecteur
+    if (idx < blocks.length - 1) {
+      const arrow = document.createElement("div");
+      const isBroken = corruptedIndex !== null && idx >= corruptedIndex;
+      arrow.className = `chain-arrow ${isBroken ? "broken" : ""}`;
+      arrow.innerHTML = `
+        <svg viewBox="0 0 50 20">
+          <line x1="4" y1="10" x2="46" y2="10" />
+        </svg>
+      `;
+      chainView.appendChild(arrow);
+    }
+  });
+}
+
+function updateAudit() {
+  if (corruptedIndex === null) {
+    auditStatus.className = "audit-box ok";
+    auditMsg.innerHTML = "Tous les 4 blocs sont 100% intacts et inviolables. Chaînage parfait.";
+    auditBadge.innerText = "STATUT : VALIDE";
+    auditBadge.style.color = "var(--emerald)";
+  } else {
+    auditStatus.className = "audit-box danger";
+    auditMsg.innerHTML = `<b>Alerte Sécurité !</b> Premier bloc corrompu : <b>#${corruptedIndex}</b> (${attackExplanations[currentAttack].name}).<br><span style="font-size:0.8rem; font-weight:400; color:#991b1b;">Cause détectée : ${attackExplanations[currentAttack].reason}</span>`;
+    auditBadge.innerText = "ALERTE SÉCURITÉ";
+    auditBadge.style.color = "var(--rose)";
+  }
+}
+
+// Boutons d'attaque
+document.querySelectorAll("#attackButtons button").forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll("#attackButtons button").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    currentAttack = btn.dataset.atk;
+    if (corruptedIndex === null) {
+      corruptedIndex = 2; // attaque par défaut sur le bloc 2
+    }
+    renderChain();
+    updateAudit();
+  };
+});
+
+// Bouton reset
+document.getElementById("resetBtn").onclick = () => {
+  corruptedIndex = null;
+  renderChain();
+  updateAudit();
+};
+
+renderChain();
+
+// 2. TABS CONSENSUS
+document.querySelectorAll(".tab-btn").forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById(btn.dataset.tab).classList.add("active");
+  };
+});
+
+// 3. SIMULATEUR POW (MINAGE)
+document.getElementById("mineBtn").onclick = function() {
+  const btn = this;
+  btn.disabled = true;
+  btn.innerText = "⛏️ Minage en cours...";
+  
+  const t0 = performance.now();
+  let nonce = 0;
+  
+  setTimeout(() => {
+    // Simulation réaliste de calcul de hash
+    nonce = Math.floor(Math.random() * 8000) + 2100;
+    const ms = (performance.now() - t0 + Math.random() * 20).toFixed(1);
+    const mockHash = "000" + Array.from({length: 61}, () => Math.floor(Math.random()*16).toString(16)).join("");
+    
+    document.getElementById("powNonce").innerText = nonce;
+    document.getElementById("powTime").innerText = ms + " ms";
+    document.getElementById("powHash").innerText = mockHash;
+    document.getElementById("powResult").style.display = "block";
+    
+    btn.disabled = false;
+    btn.innerText = "⚡ Lancer le Minage PoW";
+  }, 120);
+};
+
+// 4. SIMULATEUR POS (FORGEAGE)
+const validatorsList = [
+  { name: "Homam", stake: 50, color: "var(--purple)" },
+  { name: "Houssam", stake: 30, color: "var(--pri)" },
+  { name: "Yassine", stake: 20, color: "var(--emerald)" }
+];
+
+document.getElementById("forgeBtn").onclick = function() {
+  const r = Math.random() * 100;
+  let winner = validatorsList[0];
+  if (r > 80) winner = validatorsList[2];
+  else if (r > 50) winner = validatorsList[1];
+  
+  winner.stake += 1;
+  const mockSig = "SIG_" + Array.from({length: 32}, () => Math.floor(Math.random()*16).toString(16)).join("");
+  
+  document.getElementById("posWinner").innerText = winner.name + ` (Mise actuelle : ${winner.stake} tokens)`;
+  document.getElementById("posWinner").style.color = winner.color;
+  document.getElementById("posSig").innerText = mockSig.substring(0, 24) + "...";
+  document.getElementById("posTime").innerText = (Math.random() * 0.05 + 0.01).toFixed(2) + " ms";
+  document.getElementById("posResult").style.display = "block";
+};
+
+// 5. TESTEUR SHA-256 NATIF (API WEB CRYPTO)
+async function computeSha256(text) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(text);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+const shaInput = document.getElementById("shaInput");
+const shaOutput = document.getElementById("shaOutput");
+
+async function updateHash() {
+  const h = await computeSha256(shaInput.value);
+  shaOutput.innerText = h;
+}
+
+shaInput.oninput = updateHash;
+updateHash();
+</script>
+
+</body>
+</html>
